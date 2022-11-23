@@ -15,31 +15,31 @@
  **El estándar SQL es bueno para aplicaciones que van a funcionar a largo plazo por que:**
 
  - Con el estándar SQL, las aplicaciones pueden ser fácilmente transportadas de una base de datos de un fabricante a otro.
- 
+
 
 **Pasos  para realizar en esta clase**
 
-- 1) Instala MySQL, conforme al video Instalando MySQL Server, del aula 1 del curso de Introducción a SQL con MySQL.
+1) Instala MySQL, conforme al video Instalando MySQL Server, del aula 1 del curso de Introducción a SQL con MySQL.
 
-- 2) Abre MySQL Workbench. Utiliza la conexión LOCALHOST.
+2) Abre MySQL Workbench. Utiliza la conexión LOCALHOST.
 
-- 3) Haz clic con el Botón derecho del mouse sobre la lista de las bases de datos y escoge Create Schema...
+3) Haz clic con el Botón derecho del mouse sobre la lista de las bases de datos y escoge Create Schema...
 
-- 4) Digita el nombre jugos_ventas. Haz clic en Apply dos veces.
+4) Digita el nombre jugos_ventas. Haz clic en Apply dos veces.
 
-- 5) Haz Download del archivo RecuperacionAmbiente.zip.
+5) Haz Download del archivo RecuperacionAmbiente.zip.
 
-- 6) Descompacta el archivo.
+6) Descompacta el archivo.
 
-- 7) Selecciona la pestaña Administration en el área Navigator.
+7) Selecciona la pestaña Administration en el área Navigator.
 
-- 8) Selecciona el link Data Import/Restore.
+8) Selecciona el link Data Import/Restore.
 
-- 9) En la opción Import From Dump Project Folder escoge el directorio DumpJugosVentas.
+9) En la opción Import From Dump Project Folder escoge el directorio DumpJugosVentas.
 
-- 10) Selecciona Start Import.
+10) Selecciona Start Import.
 
-- 11) Verifica en la base de datos jugos_ventas si las tablas fueron creadas.
+11) Verifica en la base de datos jugos_ventas si las tablas fueron creadas.
 
-- 12) Existe otra manera de importar los archivos (Solo en caso de que el método anterior no funcione). Basta ejecutar todos los archivos .sql compactados en el archivo RecuperacionAmbiente.zip y listo.
+12) Existe otra manera de importar los archivos (Solo en caso de que el método anterior no funcione). Basta ejecutar todos los archivos .sql compactados en el archivo RecuperacionAmbiente.zip y listo.
 
