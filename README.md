@@ -1,16 +1,105 @@
 # Consultas SQL: Avanzando en SQL con MySQL
 
-**Configurando el ambiente y conociendo SQL**
+**Filtrando las consultas de los datos**
 
-- Recuperar el ambiente;
-- Un poco sobre la historia de SQL;
-- Un poco sobre la historia de MYSQL.
+- La importancia de conocer la base de datos antes de realizar las consultas;
+- Comando de consultas y cómo crear filtros;
+- Mezclar filtros condicionales con AND y OR;
+- Utilizar >, >=, <, <=, = ou <> en los filtros que implican valores;
+- Funcionamiento del comando LIKE.
 
-**Principales ventajas del lenguaje SQL**
+**Pasos para realizar en esta aula:
 
- - El lenguaje SQL permite reducir los costos de entrenamiento.  Como está estandarizado, un profesional que sepa SQL para una base de datos específica fácilmente podrá operar otra base de datos.
+1) Para que las consultas en la base de datos puedan ser efectuadas, es preciso conocer sus tablas y sus relaciones. Para ello, dirígete a Workbench y verifica si la base de datos jugos_ventas está disponible.
 
- - Presenta una padronización entre las bases de datos. El padrón SQL es utilizado en la mayoría de las bases de datos relacionales del mercado.
+2) Expandiendo el árbol de estructura de base de datos sobre jugos_ventas, podemos ver los componentes de una base de datos. Para las consultas, uno de los elementos más importantes son las tablas que pueden ser vistas en mayor detalle hasta su estructura de campos.
+
+3) Dirígete al menú y selecciona Database / Reverse Engineer.
+
+4) Haz Clic en Next dos veces y después escoge la base en la cual la ingeniería reversa será efectuada.
+
+5) Continúa en el asistente confirmando las selecciones por defecto hasta el final.
+
+6) Podrás ver un esquema visual de las tablas. Este esquema puede servir como una guía para tus consultas.
+
+7) Conociendo cómo es nuestra base, podemos hacer nuestras consultas. Selecciona un nuevo script de SQL, con la base de datos seleccionada, y digita:
+
+USE jugos_ventas;
+
+SELECT DNI, NOMBRE, DIRECCION_1, DIRECCION_2, BARRIO, CIUDAD, ESTADO, 
+CP, FECHA_DE_NACIMIENTO, EDAD, SEXO, LIMITE_DE_CREDITO, VOLUMEN_DE_COMPRA,
+PRIMERA_COMPRA FROM tabla_de_clientes;
+
+Aquí veremos todos los campos de la tabla tabla_de_clientes. Esto porque los campos fueron seleccionados uno a uno.
+
+8) Digita a continuación:
+
+SELECT * FROM tabla_de_clientes;
+
+Este resultado fue igual al de la consulta anterior. Ello porque al colocar * estamos seleccionando todos los campos.
+
+9) Digita:
+
+SELECT DNI, NOMBRE FROM tabla_de_clientes;
+
+Ahora podemos ver que no es necesario seleccionar todos los campos de una tabla. Basta destacar los campos que serán vistos.
+
+10) Digita:
+
+SELECT DNI AS IDENTIFICACION, NOMBRE AS CLIENTE FROM tabla_de_clientes;
+
+No siempre el nombre original de la columna es el nombre que queremos que sea retornado por la consulta. Por ello, podemos crear Alias (Sobrenombres) para los campos escribiendo algo después del comando AS.
+
+11) Podemos filtrar nuestra consulta. Digita:
+
+SELECT * FROM tabla_de_productos WHERE  SABOR = 'Uva';
+
+SELECT * FROM tabla_de_productos WHERE  SABOR = 'Mango';
+
+SELECT * FROM tabla_de_productos WHERE  ENVASE = 'Botella PET';
+
+El resultado es el mismo si se escribe en mayúscula o en minúscula ya que MySQL no es case sensitive:
+
+SELECT * FROM tabla_de_productos WHERE  ENVASE = 'botella pet';
+
+Los filtros usados retornan todos los registros de la tabla donde se cumple lo especificado por la cláusula WHERE. Podemos usar cualquier columna como criterio.
+
+12) Existen comandos de filtro aplicados a valores:
+
+SELECT * FROM tabla_de_productos WHERE PRECIO_DE_LISTA > 16;
+
+
+SELECT * FROM tabla_de_productos WHERE PRECIO_DE_LISTA BETWEEN 16 AND 16.02;
+
+
+En este caso podemos usar >, >=, <, <=, =, <> y BETWEEN. Así, podemos aplicar filtros sobre los valores para obtener diversos resultados.
+
+13) Es posible aplicar consultas condicionales usando los operadores AND y OR. El output va a depender del significado de AND y OR en una estructura lógica. Digita:
+
+SELECT * FROM tabla_de_productos WHERE SABOR='mango' AND TAMANO='470 ml';
+
+A causa del operador AND, el output solamente ocurrirá cuando las dos condiciones se cumplan en el mismo registro de la tabla.
+
+14) Digita:
+
+SELECT * FROM tabla_de_productos WHERE SABOR='mango' OR TAMANO='470 ml';
+
+Aquí obtuvimos un filtro (Sabor = Mango) u otro ( Tamaño = 470 ml). Esto porque usamos el operador OR.
+
+15) Podemos usar parte de un texto para ser empleado como criterio de localización de registros de la tabla. Digita a continuación:
+
+SELECT * FROM tabla_de_productos WHERE SABOR LIKE '%manzana';
+
+Aquí buscaremos todos los registros cuyo sabor contenga la palabra Manzana, pero solamente al final del texto, ya que el signo % precede el texto Manzana.
+
+16) Podemos mezclar condiciones LIKE con otras. Digita:
+
+SELECT * FROM tabla_de_productos WHERE SABOR LIKE '%manzana'
+AND ENVASE = 'Botella PET';
+
+Finalmente, obtuvimos el resultado de la consulta del texto “Manzana” tan solo para envases de tipo “Botella PET”.
+
+
 
  **El estándar SQL es bueno para aplicaciones que van a funcionar a largo plazo por que:**
 
