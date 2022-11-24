@@ -1,165 +1,290 @@
 # Consultas SQL: Avanzando en SQL con MySQL
 
-**Filtrando las consultas de los datos**
+**Presentación de los datos de una consulta**
 
-- La importancia de conocer la base de datos antes de realizar las consultas;
-- Comando de consultas y cómo crear filtros;
-- Mezclar filtros condicionales con AND y OR;
-- Utilizar >, >=, <, <=, = ou <> en los filtros que implican valores;
-- Funcionamiento del comando LIKE.
+- Presentar solamente filas distintas en una selección;
+- Ordenar la salida de la selección;
+- Agrupar los registros por un conjunto de campos y aplicando un criterio de agrupamiento sobre los campos numéricos (SUM, MIN, MAX, AVG, etc);
+- Utilizar el comando HAVING para aplicar un filtro utilizando los campos numéricos agrupados como condición;
+- Limitar la salida de las consultas;
+- Usar el comando CASE para clasificar un determinado campo por un criterio.
 
 **Pasos para realizar en esta aula:
 
-1) Para que las consultas en la base de datos puedan ser efectuadas, es preciso conocer sus tablas y sus relaciones. Para ello, dirígete a Workbench y verifica si la base de datos jugos_ventas está disponible.
-
-2) Expandiendo el árbol de estructura de base de datos sobre jugos_ventas, podemos ver los componentes de una base de datos. Para las consultas, uno de los elementos más importantes son las tablas que pueden ser vistas en mayor detalle hasta su estructura de campos.
-
-3) Dirígete al menú y selecciona Database / Reverse Engineer.
-
-4) Haz Clic en Next dos veces y después escoge la base en la cual la ingeniería reversa será efectuada.
-
-5) Continúa en el asistente confirmando las selecciones por defecto hasta el final.
-
-6) Podrás ver un esquema visual de las tablas. Este esquema puede servir como una guía para tus consultas.
-
-7) Conociendo cómo es nuestra base, podemos hacer nuestras consultas. Selecciona un nuevo script de SQL, con la base de datos seleccionada, y digita:
+1) De nuevo en Workbench, vamos a ver formas diferentes de exhibir los resultados. Digita:
 
 ````sql
 
-     USE jugos_ventas;
-
-     SELECT DNI, NOMBRE, DIRECCION_1, DIRECCION_2, BARRIO, CIUDAD, ESTADO, CP, 
-     FECHA_DE_NACIMIENTO, EDAD, SEXO, LIMITE_DE_CREDITO, VOLUMEN_DE_COMPRA, PRIMERA_COMPRA 
-     FROM tabla_de_clientes;
-````     
-
-Aquí veremos todos los campos de la tabla tabla_de_clientes. Esto porque los campos fueron seleccionados uno a uno.
-
-8) Digita a continuación:
-````sql
-SELECT * FROM tabla_de_clientes;
-````
-Este resultado fue igual al de la consulta anterior. Ello porque al colocar * estamos seleccionando todos los campos.
-
-9) Digita:
-
-````sql
-SELECT DNI, NOMBRE FROM tabla_de_clientes;
-````
-Ahora podemos ver que no es necesario seleccionar todos los campos de una tabla. Basta destacar los campos que serán vistos.
-
-10) Digita:
-
-````sql
-SELECT DNI AS IDENTIFICACION, NOMBRE AS CLIENTE FROM tabla_de_clientes;
-````
-
-No siempre el nombre original de la columna es el nombre que queremos que sea retornado por la consulta. Por ello, podemos crear Alias (Sobrenombres) para los campos escribiendo algo después del comando AS.
-
-11) Podemos filtrar nuestra consulta. Digita:
-
-````sql
-
-SELECT * FROM tabla_de_productos WHERE  SABOR = 'Uva';
-
-SELECT * FROM tabla_de_productos WHERE  SABOR = 'Mango';
-
-SELECT * FROM tabla_de_productos WHERE  ENVASE = 'Botella PET';
+SELECT ENVASE, TAMANO FROM tabla_de_productos;
 
 ````
 
-El resultado es el mismo si se escribe en mayúscula o en minúscula ya que MySQL no es case sensitive:
+Observa que tenemos registros donde el conjunto ENVASE / TAMAÑO se repite.
+
+2) Ahora digita el comando:
 
 ````sql
 
-SELECT * FROM tabla_de_productos WHERE  ENVASE = 'botella pet';
+SELECT DISTINCT ENVASE, TAMANO FROM tabla_de_productos;
 
 ````
 
-Los filtros usados retornan todos los registros de la tabla donde se cumple lo especificado por la cláusula WHERE. Podemos usar cualquier columna como criterio.
+El simple hecho de incluir la cláusula DISTINCT hace que los registros no se repitan.
 
-12) Existen comandos de filtro aplicados a valores:
+3) Podemos aplicar filtros a la selección con DISTINCT e incluso añadir más campos.
 
 ````sql
 
-SELECT * FROM tabla_de_productos WHERE PRECIO_DE_LISTA > 16;
-
-
-SELECT * FROM tabla_de_productos WHERE PRECIO_DE_LISTA BETWEEN 16 AND 16.02;
+SELECT DISTINCT ENVASE, TAMANO, SABOR FROM tabla_de_productos
+WHERE SABOR = 'Naranja';
 
 ````
 
-En este caso podemos usar >, >=, <, <=, =, <> y BETWEEN. Así, podemos aplicar filtros sobre los valores para obtener diversos resultados.
+4) Podemos limitar el número de registros exibidos en el output. Digita:
 
-13) Es posible aplicar consultas condicionales usando los operadores AND y OR. El output va a depender del significado de AND y OR en una estructura lógica. Digita:
-
-````sql
-SELECT * FROM tabla_de_productos WHERE SABOR='mango' AND TAMANO='470 ml';
-
-````
-
-A causa del operador AND, el output solamente ocurrirá cuando las dos condiciones se cumplan en el mismo registro de la tabla.
-
-14) Digita:
 
 ````sql
 
-SELECT * FROM tabla_de_productos WHERE SABOR='mango' OR TAMANO='470 ml';
+SELECT * FROM tabla_de_productos LIMIT 5;
 
 ````
 
-Aquí obtuvimos un filtro (Sabor = Mango) u otro ( Tamaño = 470 ml). Esto porque usamos el operador OR.
+El output está limitado a los primeros 5 registros.
 
-15) Podemos usar parte de un texto para ser empleado como criterio de localización de registros de la tabla. Digita a continuación:
+5) Podemos exhibir los registros dentro de un intervalo de filas. 
+
+Digita:
 
 ````sql
 
-SELECT * FROM tabla_de_productos WHERE SABOR LIKE '%manzana';
+SELECT * FROM tabla_de_productos LIMIT 5,4;
 
 ````
 
-Aquí buscaremos todos los registros cuyo sabor contenga la palabra Manzana, pero solamente al final del texto, ya que el signo % precede el texto Manzana.
+6) El output de un comando SELECT puede ser presentado de forma ordenada. 
 
-16) Podemos mezclar condiciones LIKE con otras. Digita:
+Observa:
+
+````sql
+
+SELECT * FROM tabla_de_productos ORDER BY PRECIO_DE_LISTA;
+
+````
+
+Tenemos los valores ordenados por precio de lista, de menor a mayor.
+
+7) Podemos cambiar este orden. Digita:
+
+````sql
+
+SELECT * FROM tabla_de_productos ORDER BY PRECIO_DE_LISTA DESC;
+
+````
+
+8) Los valores pueden ser ordenados alfabéticamente cuando incluimos un campo de texto en el criterio de ordenamiento. Digita:
+
+````sql
+
+SELECT * FROM tabla_de_productos ORDER BY NOMBRE_DEL_PRODUCTO;
+
+````
+
+9) También, en el criterio de ordenamiento del tipo texto, podemos cambiar el orden de mayor a menor. Digita:
+
+````sql
+
+SELECT * FROM tabla_de_productos ORDER BY NOMBRE_DEL_PRODUCTO DESC;
+
+````
+
+10) El criterio de ordenamiento puede ser diferente para cada tipo. Observa el ejemplo a continuación donde usamos dos campos como criterio de ordenamiento y un orden diferente para cada uno de ellos:
+
+````sql
+
+SELECT * FROM tabla_de_productos ORDER BY ENVASE DESC, NOMBRE_DEL_PRODUCTO ASC;
+
+````
+
+11) Los datos pueden ser agrupados. Cuando esto sucede, tenemos que aplicar um criterio de agrupamiento para los campos numéricos. Podemos emplear SUM, AVG, MAX, MIN, entre otros. Digita el comando siguiente:
+
+````sql
+
+SELECT ESTADO, LIMITE_DE_CREDITO FROM tabla_de_clientes;
+
+````
+
+Puedes notar que tenemos varias líneas para EM y JC. ¿Cómo hacemos para sumar todos los límites de crédito para EM y JC?
+
+12) La solución está en el siguiente comando:
 
 
 ````sql
-SELECT * FROM tabla_de_productos
-WHERE SABOR LIKE '%manzana' 
-AND ENVASE = 'Botella PET';
+
+SELECT ESTADO, SUM(LIMITE_DE_CREDITO) AS LIMITE_TOTAL
+FROM tabla_de_clientes GROUP BY ESTADO;
+
 ````
-Finalmente, obtuvimos el resultado de la consulta del texto “Manzana” tan solo para envases de tipo “Botella PET”.
 
 
+13) Podemos emplear otros criterios como el valor máximo.
 
- **El estándar SQL es bueno para aplicaciones que van a funcionar a largo plazo por que:**
+````sql
 
- - Con el estándar SQL, las aplicaciones pueden ser fácilmente transportadas de una base de datos de un fabricante a otro.
+SELECT ENVASE, MAX(PRECIO_DE_LISTA) AS MAYOR_PRECIO 
+FROM tabla_de_productos GROUP BY ENVASE;
 
 
-**Pasos  para realizar en esta clase**
+````
 
-1) Instala MySQL, conforme al video Instalando MySQL Server, del aula 1 del curso de Introducción a SQL con MySQL.
+Aquí vemos el mayor precio de lista para cada tipo de envase.
 
-2) Abre MySQL Workbench. Utiliza la conexión LOCALHOST.
+14) El comando COUNT cuenta el número de ocurrencias en la tabla. Digita:
 
-3) Haz clic con el Botón derecho del mouse sobre la lista de las bases de datos y escoge Create Schema...
+````sql
 
-4) Digita el nombre jugos_ventas. Haz clic en Apply dos veces.
+SELECT ENVASE, COUNT(*) FROM tabla_de_productos 
+GROUP BY ENVASE;
 
-5) Haz Download del archivo RecuperacionAmbiente.zip.
 
-6) Descompacta el archivo.
+````
 
-7) Selecciona la pestaña Administration en el área Navigator.
 
-8) Selecciona el link Data Import/Restore.
+Tenemos el número de productos cuyo envase es botella PET, botella de vidrio y Lata.
 
-9) En la opción Import From Dump Project Folder escoge el directorio DumpJugosVentas.
+15) El filtro puede ser aplicado sobre el agrupamiento, como una consulta cualquiera. Digita:
 
-10) Selecciona Start Import.
+````sql
 
-11) Verifica en la base de datos jugos_ventas si las tablas fueron creadas.
+SELECT BARRIO, SUM(LIMITE_DE_CREDITO) AS LIMITE 
+FROM tabla_de_clientes GROUP BY BARRIO;
 
-12) Existe otra manera de importar los archivos (Solo en caso de que el método anterior no funcione). Basta ejecutar todos los archivos .sql compactados en el archivo RecuperacionAmbiente.zip y listo.
+````
+
+16) Adicionalmente, el agrupamiento puede ser realizado en más de un campo. Digita:
+
+````sql
+
+SELECT ESTADO, BARRIO, MAX(LIMITE_DE_CREDITO) AS LIMITE 
+FROM tabla_de_clientes GROUP BY ESTADO, BARRIO;
+
+````
+
+17) Podemos mezclar agrupamiento com ordenamiento. Digita:
+
+````sql
+
+SELECT ESTADO, BARRIO, MAX(LIMITE_DE_CREDITO) AS LIMITE,
+EDAD FROM tabla_de_clientes 
+WHERE EDAD >=20
+GROUP BY ESTADO, BARRIO
+ORDER BY EDAD;
+
+````
+
+18) Observa la consulta a continuación:
+
+````sql
+
+SELECT ESTADO, SUM(LIMITE_DE_CREDITO) AS LIMITE_TOTAL
+FROM tabla_de_clientes GROUP BY ESTADO;
+
+````
+
+19) Queremos aplicar un filtro sobre el resultado de esta consulta. Entonces, digita:
+
+````sql
+
+SELECT ESTADO, SUM(LIMITE_DE_CREDITO) AS LIMITE_TOTAL
+FROM tabla_de_clientes WHERE LIMITE_TOTAL > 300000
+GROUP BY ESTADO;
+
+````
+
+Nota que la consulta anterior generó un error.
+
+20) Usamos el comando HAVING para filtrar el output de una consulta usando como criterio el valor agrupado. Digita:
+
+````sql
+
+SELECT ESTADO, SUM(LIMITE_DE_CREDITO) AS LIMITE_TOTAL
+FROM tabla_de_clientes 
+GROUP BY ESTADO
+HAVING LIMITE_TOTAL > 300000;
+
+````
+
+21) El criterio usado con el comando HAVING no necesita ser el mismo usado en el filtro. Observa el siguiente comando:
+
+````sql
+
+SELECT ENVASE, MAX(PRECIO_DE_LISTA) AS PRECIO_MAXIMO,
+MIN(PRECIO_DE_LISTA) AS PRECIO_MINIMO 
+FROM tabla_de_productos GROUP BY ENVASE;
+
+````
+
+Utiliza el MIN para agrupamiento.
+
+22) Pero, en la siguiente consulta, el criterio del comando HAVING pide la suma. Digita:
+
+````sql
+
+SELECT ENVASE, MAX(PRECIO_DE_LISTA) AS PRECIO_MAXIMO,
+MIN(PRECIO_DE_LISTA) AS PRECIO_MINIMO 
+FROM tabla_de_productos GROUP BY ENVASE;
+
+````
+
+23) Al utilizar HAVING podemos usar más de un criterio empleando AND u OR.
+
+````sql
+
+SELECT ENVASE, MAX(PRECIO_DE_LISTA) AS PRECIO_MAXIMO,
+MIN(PRECIO_DE_LISTA) AS PRECIO_MINIMO,
+SUM(PRECIO_DE_LISTA) AS SUMA_PRECIO
+FROM tabla_de_productos GROUP BY ENVASE
+HAVING SUM(PRECIO_DE_LISTA) >= 80 
+AND MAX(PRECIO_DE_LISTA) >= 5;
+
+````
+
+24) El comando CASE permite la clasificación de cada registro de la tabla. Digita el comando siguiente:
+
+````sql
+
+SELECT NOMBRE_DEL_PRODUCTO, PRECIO_DE_LISTA,
+CASE
+   WHEN PRECIO_DE_LISTA >= 12 THEN 'Costoso'
+   WHEN PRECIO_DE_LISTA >= 5 AND PRECIO_DE_LISTA < 12 THEN 'Asequible'
+   ELSE 'Barato'
+END AS PRECIO
+FROM tabla_de_productos;
+
+````
+
+Con CASE fue posible clasificar los productos como Costoso, Barato o Asequible conforme al valor de su precio de lista.
+
+25) Podemos usar el comando CASE como criterio de agrupamiento, Digita el siguiente comando:
+
+````sql
+
+SELECT ENVASE, SABOR,
+CASE
+   WHEN PRECIO_DE_LISTA >= 12 THEN 'Costoso'
+   WHEN PRECIO_DE_LISTA >= 5 AND PRECIO_DE_LISTA < 12 THEN 'Asequible'
+   ELSE 'Barato'
+END AS PRECIO, MIN(PRECIO_DE_LISTA) AS PRECIO_MINIMO
+FROM tabla_de_productos
+WHERE TAMANO = '700 ml'
+GROUP BY ENVASE,
+CASE
+   WHEN PRECIO_DE_LISTA >= 12 THEN 'Costoso'
+   WHEN PRECIO_DE_LISTA >= 5 AND PRECIO_DE_LISTA < 12 THEN 'Asequible'
+   ELSE 'Barato'
+END
+ORDER BY ENVASE;
+
+
+````
+
 
