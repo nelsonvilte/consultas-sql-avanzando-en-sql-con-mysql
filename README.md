@@ -9,7 +9,7 @@
 - Utilizar una consulta dentro de otra consulta;
 - Crear y utilizar vistas (Views).
 
-**Pasos para realizar en esta aula:
+**Pasos para realizar en esta aula:**
 
 1) Aquí veremos cómo conectar las consultas de tablas diferentes. Esta unión se conoce como JOIN.
 
