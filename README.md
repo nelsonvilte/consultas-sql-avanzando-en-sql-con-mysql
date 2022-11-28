@@ -1,90 +1,236 @@
 # Consultas SQL: Avanzando en SQL con MySQL
 
-**Funciones de MySQL**
+**Ejemplos de informes**
 
-- Algunas funciones de tipo STRING para texto;
-- Funciones matemáticas;
-- Funciones de tipo DATE para fechas;
-- Abordamos funciones de conversión.
+- Colocamos en práctica nuestro conocimiento generando dos informes conforme a lo especificado por la gerencia de la empresa de jugo de frutas.
+
+**Realizando una consulta al informe**
+
+En esta aula construimos un informe que presentó a los clientes que tenían ventas inválidas. Complementa este informe listando solamente a los que tuvieron ventas inválidas y calcula la diferencia entre el límite de venta máximo y la cantidad vendida en porcentuales.
+
+Tips:
+
+- Utiliza el comando SQL empleado al final del video.
+
+- Filtra solamente las líneas donde: (A.CANTIDAD_VENDIDA - A.CANTIDAD_MAXIMA) < 0
+
+- Lista el campo X.CANTIDAD_LIMITE
+
+- Crea nuevo campo ejecutando la fórmula: (1 - (X.QUANTIDADE_LIMITE/X.QUANTIDADE_VENDAS)) * 100.
 
 
-**Funciones con STRINGS**
-
-Listando la dirección completa: Consulta listando el nombre del cliente y la dirección completa (Con calle, barrio, ciudad y estado).
 
 ````sql
+SELECT A.DNI, A.NOMBRE, A.MES_AÑO, 
+A.CANTIDAD_VENDIDA - A.CANTIDAD_MAXIMA AS DIFERENCIA,
+CASE
+   WHEN  (A.CANTIDAD_VENDIDA - A.CANTIDAD_MAXIMA) <= 0 THEN 'Venta Válida'
+   ELSE 'Venta Inválida'
+END AS STATUS_VENTA, ROUND((1 - (A.CANTIDAD_MAXIMA/A.CANTIDAD_VENDIDA)) * 100,2) AS PORCENTAJE
+ FROM(
+SELECT F.DNI, TC.NOMBRE, DATE_FORMAT(F.FECHA_VENTA, "%m - %Y") AS MES_AÑO, 
+SUM(IFa.CANTIDAD) AS CANTIDAD_VENDIDA, 
+MAX(VOLUMEN_DE_COMPRA)/10 AS CANTIDAD_MAXIMA  
+FROM facturas F 
+INNER JOIN 
+items_facturas IFa
+ON F.NUMERO = IFa.NUMERO
+INNER JOIN 
+tabla_de_clientes TC
+ON TC.DNI = F.DNI
+GROUP BY
+F.DNI, TC.NOMBRE, DATE_FORMAT(F.FECHA_VENTA, "%m - %Y"))A
+WHERE (A.CANTIDAD_MAXIMA - A.CANTIDAD_VENDIDA) < 0;
 
-SELECT NOMBRE, CONCAT(DIRECCION_1, ' ', BARRIO, ' ', CIUDAD, ' ', ESTADO) AS COMPLETO FROM tabla_de_clientes;
+````
+
+**Realizando una nueva consulta al informe**
+
+En esta aula construimos un informe que presentó a los clientes que tenían ventas inválidas. Ahora lista solamente a los que tuvieron ventas inválidas en el año 2018 excediendo más del 50% de su límite permitido por mes. Calcula la diferencia entre el límite de venta máximo y la cantidad vendida, en porcentuales.
+
+Tips:
+
+- Te puedes apoyar en el código que realizaste para el desafío anterior.
+
+
+````sql
+SELECT A.DNI, A.NOMBRE, A.MES_AÑO, 
+A.CANTIDAD_VENDIDA - A.CANTIDAD_MAXIMA AS DIFERENCIA,
+CASE
+   WHEN  (A.CANTIDAD_VENDIDA - A.CANTIDAD_MAXIMA) <= 0 THEN 'Venta Válida'
+   ELSE 'Venta Inválida'
+END AS STATUS_VENTA, ROUND((1 - (A.CANTIDAD_MAXIMA/A.CANTIDAD_VENDIDA)) * 100,2) AS PORCENTAJE
+ FROM(
+SELECT F.DNI, TC.NOMBRE, DATE_FORMAT(F.FECHA_VENTA, "%m - %Y") AS MES_AÑO, 
+SUM(IFa.CANTIDAD) AS CANTIDAD_VENDIDA, 
+MAX(VOLUMEN_DE_COMPRA)/10 AS CANTIDAD_MAXIMA  
+FROM facturas F 
+INNER JOIN 
+items_facturas IFa
+ON F.NUMERO = IFa.NUMERO
+INNER JOIN 
+tabla_de_clientes TC
+ON TC.DNI = F.DNI
+GROUP BY
+F.DNI, TC.NOMBRE, DATE_FORMAT(F.FECHA_VENTA, "%m - %Y"))A
+WHERE (A.CANTIDAD_MAXIMA - A.CANTIDAD_VENDIDA) < 0 AND ROUND((1 - (A.CANTIDAD_MAXIMA/A.CANTIDAD_VENDIDA)) * 100,2) > 50
+AND A.MES_AÑO LIKE "%2018";
 
 ````
 
 
-**Funciones de fecha**
+**Ventas porcentuales por tamaño**
 
-Edad de los clientes: Consulta que muestre el nombre y la edad actual del cliente.
+Modifica el informe pero ahora para ver el ranking de las ventas por tamaño.
 
-````sql
+Tips:
 
-SELECT NOMBRE, TIMESTAMPDIFF(YEAR, FECHA_DE_NACIMIENTO, CURDATE()) AS    EDAD
-FROM  tabla_de_clientes;
+- Puede parecer difícil pero este es el ejercicio más fácil de resolver.
 
-````
-
-**Funciones matemáticas**
- 
- Formato de facturación: En la tabla de facturas tenemos el valor del impuesto. En la tabla de ítems tenemos la cantidad y la facturación. Calcula el valor del impuesto pago en el año de 2016 redondeando al menor entero.
+Lo único que debes hacer es tomar el informe, y en vez de utilizar el sabor como parámetro, utilizas tamaño. El restante de la consulta permanece igual:
 
 ````sql
-
-SELECT YEAR(FECHA_VENTA), FLOOR(SUM(IMPUESTO * (CANTIDAD * PRECIO))) 
-AS RESULTADO
-FROM facturas F
-INNER JOIN items_facturas IFa ON F.NUMERO = IFa.NUMERO
-WHERE YEAR(FECHA_VENTA) = 2016
-GROUP BY YEAR(FECHA_VENTA);
-
-````
-
-**Convirtiendo datos** 
-
-Listando con expresión natural: Construir un SQL cuyo resultado sea, para cada cliente:
-
-- “El cliente Pepito Pérez facturó 120000 en el año 2016”.
-
-Solamente para el año 2016.
-
-````sql
-
-SELECT CONCAT('El cliente ', TC.NOMBRE, ' facturó ', 
-CONVERT(SUM(IFa.CANTIDAD * IFa.precio), CHAR(20))
- , ' en el año ', CONVERT(YEAR(F.FECHA_VENTA), CHAR(20))) AS FRASE FROM facturas F
-INNER JOIN items_facturas IFa ON F.NUMERO = IFa.NUMERO
-INNER JOIN tabla_de_clientes TC ON F.DNI = TC.DNI
-WHERE YEAR(FECHA_VENTA) = 2016
-GROUP BY TC.NOMBRE, YEAR(FECHA_VENTA);
+SELECT VENTAS_TAMANO.TAMANO, VENTAS_TAMANO.AÑO, VENTAS_TAMANO.CANTIDAD_TOTAL,
+ROUND((VENTAS_TAMANO.CANTIDAD_TOTAL/VENTA_TOTAL.CANTIDAD_TOTAL)*100,2) 
+AS PORCENTAJE FROM (
+SELECT P.TAMANO, SUM(IFa.CANTIDAD) AS CANTIDAD_TOTAL, 
+YEAR(F.FECHA_VENTA) AS AÑO FROM
+tabla_de_productos P
+INNER JOIN
+items_facturas IFa
+ON P.CODIGO_DEL_PRODUCTO = IFa.CODIGO_DEL_PRODUCTO
+INNER JOIN
+facturas F
+ON F.NUMERO = IFa.NUMERO
+WHERE YEAR(F.FECHA_VENTA) = 2016
+GROUP BY P.TAMANO, YEAR(F.FECHA_VENTA)
+ORDER BY SUM(IFa.CANTIDAD) DESC) VENTAS_TAMANO
+INNER JOIN (
+SELECT SUM(IFa.CANTIDAD) AS CANTIDAD_TOTAL, 
+YEAR(F.FECHA_VENTA) AS AÑO FROM
+tabla_de_productos P
+INNER JOIN
+items_facturas IFa
+ON P.CODIGO_DEL_PRODUCTO = IFa.CODIGO_DEL_PRODUCTO
+INNER JOIN
+facturas F
+ON F.NUMERO = IFa.NUMERO
+WHERE YEAR(F.FECHA_VENTA) = 2016
+GROUP BY YEAR(F.FECHA_VENTA)) VENTA_TOTAL
+ON VENTA_TOTAL.AÑO = VENTAS_TAMANO.AÑO
+ORDER BY VENTAS_TAMANO.CANTIDAD_TOTAL DESC;
 
 ````
 
 **Pasos para realizar en esta aula:**
 
-1) En esta aula veremos ejemplos de funciones.
+1) Vamos a poner en práctica nuestro conocimiento.
 
-2) Primero vimos las funciones de tipo texto. Observa algunos ejemplos con sus respectivos outputs:
+2) Primero, generamos una selección que determina si las ventas mensuales por cliente son válidas o no. Consideramos válidas las ventas por debajo de la cantidad límite e inválidas por encima de la cantidad límite existente en el registro del cliente. La consulta se muestra a continuación:
+
+````sql
+
+SELECT A.DNI, A.NOMBRE, A.MES_AÑO, 
+A.CANTIDAD_VENDIDA - A.CANTIDAD_MAXIMA AS DIFERENCIA,
+CASE
+   WHEN  (A.CANTIDAD_VENDIDA - A.CANTIDAD_MAXIMA) <= 0 THEN 'Venta Válida'
+   ELSE 'Venta Inválida'
+END AS STATUS_VENTA
+ FROM(
+SELECT F.DNI, TC.NOMBRE, DATE_FORMAT(F.FECHA_VENTA, "%m - %Y") AS MES_AÑO, 
+SUM(IFa.CANTIDAD) AS CANTIDAD_VENDIDA, 
+MAX(VOLUMEN_DE_COMPRA)/10 AS CANTIDAD_MAXIMA  
+FROM facturas F 
+INNER JOIN 
+items_facturas IFa
+ON F.NUMERO = IFa.NUMERO
+INNER JOIN 
+tabla_de_clientes TC
+ON TC.DNI = F.DNI
+GROUP BY
+F.DNI, TC.NOMBRE, DATE_FORMAT(F.FECHA_VENTA, "%m - %Y"))A;
+
+````
+
+3) Otro ejemplo de informe es el que determina la venta por sabores, para el año de 2016, presentando el porcentaje de participación de cada uno de estos sabores, ordenados.
+
 
 
 ````sql
-SELECT LTRIM("    MySQL es fácil") AS RESULTADO;
+
+SELECT VENTAS_SABOR.SABOR, VENTAS_SABOR.AÑO, VENTAS_SABOR.CANTIDAD_TOTAL,
+ROUND((VENTAS_SABOR.CANTIDAD_TOTAL/VENTA_TOTAL.CANTIDAD_TOTAL)*100,2) 
+AS PORCENTAJE FROM (
+SELECT P.SABOR, SUM(IFa.CANTIDAD) AS CANTIDAD_TOTAL, 
+YEAR(F.FECHA_VENTA) AS AÑO FROM
+tabla_de_productos P
+INNER JOIN
+items_facturas IFa
+ON P.CODIGO_DEL_PRODUCTO = IFa.CODIGO_DEL_PRODUCTO
+INNER JOIN
+facturas F
+ON F.NUMERO = IFa.NUMERO
+WHERE YEAR(F.FECHA_VENTA) = 2016
+GROUP BY P.SABOR, YEAR(F.FECHA_VENTA)
+ORDER BY SUM(IFa.CANTIDAD) DESC) VENTAS_SABOR
+INNER JOIN (
+SELECT SUM(IFa.CANTIDAD) AS CANTIDAD_TOTAL, 
+YEAR(F.FECHA_VENTA) AS AÑO FROM
+tabla_de_productos P
+INNER JOIN
+items_facturas IFa
+ON P.CODIGO_DEL_PRODUCTO = IFa.CODIGO_DEL_PRODUCTO
+INNER JOIN
+facturas F
+ON F.NUMERO = IFa.NUMERO
+WHERE YEAR(F.FECHA_VENTA) = 2016
+GROUP BY YEAR(F.FECHA_VENTA)) VENTA_TOTAL
+ON VENTA_TOTAL.AÑO = VENTAS_SABOR.AÑO
+ORDER BY VENTAS_SABOR.CANTIDAD_TOTAL DESC;
 
 ````
 
 
 
 
-````sql
 
-SELECT RTRIM("MySQL es fácil    ") AS RESULTADO;
 
-````
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ````sql
 
